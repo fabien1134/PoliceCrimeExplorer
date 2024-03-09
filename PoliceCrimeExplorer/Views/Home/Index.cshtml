@@ -1,0 +1,39 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    <button id="updateTableButton">Update Table</button>
+    <table id="myTable">
+        <!-- Your table rows and cells -->
+    </table>
+
+
+    <form method="get" action="/Search">
+        <input type="text" name="q" />
+        <button type="submit">Search</button>
+    </form>
+</div>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $('#updateTableButton').click(function () {
+            $.ajax({
+                type: 'GET',
+                url: '@Url.Action("GetDataFromApi", "Home")', // Replace with your actual action URL
+                dataType: 'json',
+                success: function (data) {
+                    // Update the table with the received data
+                    // Example: Assuming your table has an ID 'myTable'
+                    $('#myTable').html(data); // Replace with your logic
+                },
+                error: function (data) {
+                    alert('Error fetching data from API.');
+                }
+            });
+        });
+    });
+</script>
