@@ -2,28 +2,47 @@
     ViewData["Title"] = "Home Page";
 }
 
+<link href="~/flatpickr/flatpickr.min.css" rel="stylesheet" />
+<link href="~/flatpickr/ie.min.css" rel="stylesheet" />
+<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
-    <button id="updateTableButton">Update Table</button>
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+        <input type="text" id="gpsCord1" />
+        <input type="text" id="gpsCord2" />
+        <input class="flatpickr flatpickr-input" id="myDateInput" placeholder="Select a date" style="width: auto;">
+    </div>
+    <button type="submit" id="updateTableButton" style="margin-top: 10px;">Search</button>
+
     <table id="myTable">
         <!-- Your table rows and cells -->
     </table>
-
-
-    <form method="get" action="/Search">
-        <input type="text" name="q" />
-        <button type="submit">Search</button>
-    </form>
 </div>
 
+
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="~/flatpickr/flatpickr.min.js"></script>
+
 <script>
     $(document).ready(function () {
+
+        const flatpickrInstance = flatpickr($('#myDateInput'), {
+            // Your configuration options go here
+            dateFormat: 'Y-m-d', // Example: Display dates in YYYY-MM-DD format
+            altInput: true, // Show a more user-friendly date format
+            altFormat: 'F j, Y', // Example: Display dates like "January 1, 2023"
+        });
+
         $('#updateTableButton').click(function () {
             $.ajax({
                 type: 'GET',
-                url: '@Url.Action("GetDataFromApi", "Home")', // Replace with your actual action URL
+                url: '@Url.Action("GetPoliceStreetCrimeDataInLocation", "Home")', // Replace with your actual action URL
+                data: {
+                    gpsCord1: gpsCord1Value,
+                    gpsCord2: gpsCord2Value,
+                    searchDate: searchDateValue
+                },
                 dataType: 'json',
                 success: function (data) {
                     // Update the table with the received data

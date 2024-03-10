@@ -19,7 +19,14 @@ namespace PoliceCrimeExplorer.Controllers
         }
 
         #region Police API Interactions
-        public IActionResult GetDataFromApi()
+        /// <summary>
+        /// Will retrieve crimes that have been commited within a one mile radius from a GPS location 
+        /// </summary>
+        /// <param name="gpsCord1"></param>
+        /// <param name="gpsCord2"></param>
+        /// <param name="searchDate"></param>
+        /// <returns></returns>
+        public IActionResult GetPoliceStreetCrimeDataInLocation(string gpsCord1, string gpsCord2, string searchDate)
         {
             var apiData = "LALALA";//_apiService.GetDataFromApi(); // Fetch data from the API
             return Json(apiData); // Return data as JSON
