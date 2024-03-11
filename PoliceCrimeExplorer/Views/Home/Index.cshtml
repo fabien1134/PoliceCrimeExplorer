@@ -8,10 +8,11 @@
 
 <div class="text-center">
     <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
-        <input type="text" id="gpsCord1" />
-        <input type="text" id="gpsCord2" />
+        <input type="text" id="latitudeGpsCord" placeholder="Enter Latitude" />
+        <input type="text" id="longitudeGpsCord" placeholder="Enter longitude" />
         <input class="flatpickr flatpickr-input" id="myDateInput" placeholder="Select a date" style="width: auto;">
     </div>
+
     <button type="submit" id="updateTableButton" style="margin-top: 10px;">Search</button>
 
     <table id="myTable">
@@ -26,7 +27,6 @@
 
 <script>
     $(document).ready(function () {
-
         const flatpickrInstance = flatpickr($('#myDateInput'), {
             // Your configuration options go here
             dateFormat: 'Y-m-d', // Example: Display dates in YYYY-MM-DD format
@@ -35,13 +35,34 @@
         });
 
         $('#updateTableButton').click(function () {
+
+            var latitudeGpsCord = $('#latitudeGpsCord').val();
+
+            var longitudeGpsCord = $('#longitudeGpsCord').val();
+
+            // Regular expressions for latitude and longitude
+            var latRegex = /^(\+|-)?(?:90(?:(?:\.0{1,6})?)|(?:[0-9]|[1-8][0-9])(?:(?:\.[0-9]{1,6})?))$/;
+            var lonRegex = /^(\+|-)?(?:180(?:(?:\.0{1,6})?)|(?:[0-9]|[1-9][0-9]|1[0-7][0-9])(?:(?:\.[0-9]{1,6})?))$/;
+
+            if (!latRegex.test(latitudeGpsCord) || !lonRegex.test(longitudeGpsCord)) {
+                alert('Please enter valid GPS coordinates.');
+                return;
+            }
+
+            var searchDate = flatpickrInstance.selectedDates[0];
+
+            if (searchDate === undefined || latitudeGpsCord === "" || longitudeGpsCord === "") {
+                alert('Ensure GPS cords and a date is selected.');
+                return;
+            }
+
             $.ajax({
                 type: 'GET',
                 url: '@Url.Action("GetPoliceStreetCrimeDataInLocation", "Home")', // Replace with your actual action URL
                 data: {
-                    gpsCord1: gpsCord1Value,
-                    gpsCord2: gpsCord2Value,
-                    searchDate: searchDateValue
+                    latitudeGpsCord: latitudeGpsCord,
+                    longitudeGpsCord: longitudeGpsCord,
+                    searchDate: searchDate.toISOString()
                 },
                 dataType: 'json',
                 success: function (data) {

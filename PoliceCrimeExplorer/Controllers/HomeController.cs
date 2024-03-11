@@ -1,16 +1,31 @@
 using Microsoft.AspNetCore.Mvc;
 using PoliceCrimeExplorer.Models;
+using PoliceCrimeExplorer.Services;
+using PoliceCrimeExplorer.ViewModels;
 using System.Diagnostics;
 
 namespace PoliceCrimeExplorer.Controllers
 {
-    public class HomeController(ILogger<HomeController> logger) : Controller
+    public class HomeController(ILogger<HomeController> logger, IPoliceDataClientService policeDataClientService) : Controller
     {
         private readonly ILogger<HomeController> _logger = logger;
+        private readonly IPoliceDataClientService _policeDataClientService = policeDataClientService;
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            return View();
+            var policeDataUpdateViewModel = new PoliceDataUpdateViewModel();
+
+            try
+            {
+                policeDataUpdateViewModel.LastPoliceDataUpdate = await _policeDataClientService.GetLastPoliceDataUpdate();
+                policeDataUpdateViewModel.SuccessfullyRetrievedLastPoliceDataUpdate = true;
+            }
+            catch (Exception ex)
+            {
+
+            }
+
+            return View(policeDataUpdateViewModel);
         }
 
         public IActionResult Privacy()
@@ -18,18 +33,27 @@ namespace PoliceCrimeExplorer.Controllers
             return View();
         }
 
-        #region Police API Interactions
+        #region MVC Actions
         /// <summary>
         /// Will retrieve crimes that have been commited within a one mile radius from a GPS location 
         /// </summary>
-        /// <param name="gpsCord1"></param>
-        /// <param name="gpsCord2"></param>
+        /// <param name="latitudeGpsCord"></param>
+        /// <param name="longitudeGpsCord"></param>
         /// <param name="searchDate"></param>
         /// <returns></returns>
-        public IActionResult GetPoliceStreetCrimeDataInLocation(string gpsCord1, string gpsCord2, string searchDate)
+        public async Task<IActionResult> GetPoliceStreetCrimeDataInLocation(string latitudeGpsCord, string longitudeGpsCord, DateTime searchDate)
         {
-            var apiData = "LALALA";//_apiService.GetDataFromApi(); // Fetch data from the API
-            return Json(apiData); // Return data as JSON
+            try
+            {
+                var streetCrimeNearGpsLocationData = await _policeDataClientService.GetStreetCrimeNearGpsLocation(latitudeGpsCord, longitudeGpsCord, searchDate);
+
+                return Json(streetCrimeNearGpsLocationData); // Return data as JSON
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex);
+            }
+
         }
         #endregion
 

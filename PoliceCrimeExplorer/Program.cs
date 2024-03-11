@@ -1,8 +1,16 @@
+using PoliceCrimeExplorer.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
+builder.Services.AddScoped<IPoliceDataClientService, PoliceDataClientService>();
+
+builder.Services.AddHttpClient<IPoliceDataClientService, PoliceDataClientService>(client =>
+{
+    client.BaseAddress = new Uri("https://data.police.uk/api/");
+});
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
