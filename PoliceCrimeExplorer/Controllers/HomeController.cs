@@ -30,11 +30,6 @@ namespace PoliceCrimeExplorer.Controllers
             return View(policeDataUpdateViewModel);
         }
 
-        public IActionResult Privacy()
-        {
-            return View();
-        }
-
         #region MVC Actions
         /// <summary>
         /// Will retrieve crimes that have been commited within a one mile radius from a GPS location 
