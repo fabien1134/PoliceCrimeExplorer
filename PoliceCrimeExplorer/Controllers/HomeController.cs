@@ -6,10 +6,11 @@ using System.Diagnostics;
 
 namespace PoliceCrimeExplorer.Controllers
 {
-    public class HomeController(ILogger<HomeController> logger, IPoliceDataClientService policeDataClientService) : Controller
+    public class HomeController(ILogger<HomeController> logger, IPoliceDataClientService policeDataClientService, IPoliceDataCalendarService policeDataCalendarService) : Controller
     {
         private readonly ILogger<HomeController> _logger = logger;
         private readonly IPoliceDataClientService _policeDataClientService = policeDataClientService;
+        private readonly IPoliceDataCalendarService _policeDataCalendarService = policeDataCalendarService;
 
         public async Task<IActionResult> Index()
         {
@@ -19,6 +20,7 @@ namespace PoliceCrimeExplorer.Controllers
             {
                 policeDataUpdateViewModel.LastPoliceDataUpdate = await _policeDataClientService.GetLastPoliceDataUpdate();
                 policeDataUpdateViewModel.SuccessfullyRetrievedLastPoliceDataUpdate = true;
+                policeDataUpdateViewModel.CalendarMaxDate = _policeDataCalendarService.GetCalendarMaximumDateBasedOnPoliceDataLastUpdate(DateTime.Today, policeDataUpdateViewModel.LastPoliceDataUpdate);
             }
             catch (Exception ex)
             {
@@ -53,7 +55,6 @@ namespace PoliceCrimeExplorer.Controllers
             {
                 return StatusCode(StatusCodes.Status500InternalServerError, ex);
             }
-
         }
         #endregion
 
