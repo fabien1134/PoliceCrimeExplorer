@@ -28,6 +28,11 @@
 
 <div class="container">
     <div class="row">
+        <div class="col-12 text-center">
+            <h3 type="label" class="mt-2 mx-auto">Police Data Last Updated: @Model.LastPoliceDataUpdate.ToString("MMMM yyyy")</h3>
+        </div>
+    </div>
+    <div class="row">
         <div class="col">
             <input type="text" id="latitudeGpsCord" placeholder="Enter Latitude" class="form-control" />
         </div>
@@ -39,13 +44,14 @@
         </div>
     </div>
     <div class="row">
-        <div class="col">
-            <button type="submit" id="updateTableButton" class="btn btn-primary mt-2">Search</button>
-        </div>
+        <div class="col-12 text-center">
+            <button type="submit" id="updateTableButton" class="btn btn-primary mt-2 mx-auto">Search</button>
+         </div>
     </div>
-    <div class="row">
-        <div class="col">
-            <table id="table_grouped_crimes" class="ui olive celled table">
+<div class="row mt-4">
+    <div class="col">
+        <h5>Grouped Crimes</h5>
+        <table id="table_grouped_crimes" class="ui olive celled table mb-4">
                 <thead>
                     <tr>
                         <th style="width:50%;"><font>Crime Name</font></th>
@@ -56,9 +62,10 @@
             </table>
         </div>
     </div>
-        <div class="row">
-        <div class="col">
-            <table id="table_street_crimes" class="ui olive celled table">
+<div class="row mt-4">
+    <div class="col">
+        <h5>Street Crimes</h5> 
+        <table id="table_street_crimes" class="ui olive celled table">
                 <thead>
                     <tr>
                         <th style="width:25%;"><font>Category</font></th>
@@ -77,7 +84,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
 <script>
-
     var groupedCrimesTable;
     var streetCrimesTable;
 
@@ -86,15 +92,23 @@
     });
 
     streetCrimesTable = $("#table_street_crimes").DataTable({
-        "deferRender": true
+        "deferRender": true,
+        "columnDefs": [{ 
+            "searchable": false, 
+            "orderable": false, 
+            "targets": [4]}]
     });
 
+    let calendarMaxDateString = `${@Model.CalendarMaxDate.Year}-${('0' + (@Model.CalendarMaxDate.Month + 1)).slice(-2)}`;
+
     $(document).ready(function () {
+
         const flatpickrInstance = flatpickr($('#myDateInput'), {
             dateFormat: 'Y-m', // Display dates in YYYY-MM format
             altInput: true, // Show a more user-friendly date format
             altFormat: 'F Y', // Display dates like "January 2023"
             monthSelectorType: 'dropdown', // Enables month selection
+            maxDate:@Model.SuccessfullyRetrievedLastPoliceDataUpdate.ToString().ToLower()==true?calendarMaxDateString:null,
             plugins: [
                 new monthSelectPlugin({
                     shorthand: true, //defaults to false
@@ -146,7 +160,6 @@
                          data.groupedCrimeCounts[i].count
                         ]);
                     }
-                   
 
                     for(var i=0;i<data.streetCrimes.length;i++){
                         var outcomeStatusCategory=null;
@@ -159,12 +172,10 @@
                         data.streetCrimes[i].location_type,
                         data.streetCrimes[i].location.street.name,
                         outcomeStatusCategory,
-                        null
+                        "<button data-lat='"+data.streetCrimes[i].location.latitude+"' data-lng='"+data.streetCrimes[i].location.longitude+"' class='btn btn-primary mapButton'><font>View On Map</font></button>"
                         ]);
                     }
                    
-
-
                     groupedCrimesTable.draw();
                     streetCrimesTable.draw();
                 },
