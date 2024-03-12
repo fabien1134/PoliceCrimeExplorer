@@ -6,7 +6,27 @@
 
 <link href="~/flatpickr/flatpickr.min.css" rel="stylesheet" />
 <link href="~/flatpickr/ie.min.css" rel="stylesheet" />
+<link href="~/flatpickr/plugins/confirmDate/confirmDate.min.css" rel="stylesheet" />
 <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="~/flatpickr/flatpickr.min.js"></script>
+<script src="~/flatpickr/plugins/confirmDate/confirmDate.min.js"></script>
+
+<style>
+    .flatpickr-weekdays,
+    .flatpickr-day,
+    .flatpickr-calendar {
+        display: none;
+    }
+</style>
+
+
+
+<link href="https://cdn.datatables.net/v/dt/dt-2.0.2/datatables.min.css" rel="stylesheet">
+<script src="https://cdn.datatables.net/v/dt/dt-2.0.2/datatables.min.js"></script>
+
 
 <div class="text-center">
     <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
@@ -20,23 +40,37 @@
     <table id="myTable">
         <!-- Your table rows and cells -->
     </table>
+
+
+    <table id="table_grouped_crimes" class="ui olive celled table" style="border-collapse: collapse;">
+        <thead>
+            <tr>
+                <th style="width:50%;"><font>Crime Name</font></th>
+                <th style="width:50%;"><font>Crime Amount</font></th>
+            </tr>
+        </thead>
+    </table>
 </div>
 
 
-<script src="~/lib/jquery/dist/jquery.min.js"></script>
-<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-<script src="~/flatpickr/flatpickr.min.js"></script>
-
 <script>
+    var groupedCrimesTable;
+
+    groupedCrimesTable = $("#table_grouped_crimes").DataTable({
+        "deferRender": true
+    });
+
     $(document).ready(function () {
         const flatpickrInstance = flatpickr($('#myDateInput'), {
-            // Your configuration options go here
-            dateFormat: 'Y-m-d', // Example: Display dates in YYYY-MM-DD format
+            dateFormat: 'Y-m', // Display dates in YYYY-MM format
             altInput: true, // Show a more user-friendly date format
-            altFormat: 'F j, Y', // Example: Display dates like "January 1, 2023"
+            altFormat: 'F Y', // Display dates like "January 2023"
+            monthSelectorType: 'dropdown', // Enables month selection
         });
 
+
         $('#updateTableButton').click(function () {
+            groupedCrimesTable.clear();
 
             var latitudeGpsCord = $('#latitudeGpsCord').val();
 
