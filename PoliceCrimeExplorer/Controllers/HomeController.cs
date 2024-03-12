@@ -22,7 +22,7 @@ namespace PoliceCrimeExplorer.Controllers
                 policeDataUpdateViewModel.SuccessfullyRetrievedLastPoliceDataUpdate = true;
                 policeDataUpdateViewModel.CalendarMaxDate = _policeDataCalendarService.GetCalendarMaximumDateBasedOnPoliceDataLastUpdate(DateTime.Today, policeDataUpdateViewModel.LastPoliceDataUpdate);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 //Log error and save in database
             }
