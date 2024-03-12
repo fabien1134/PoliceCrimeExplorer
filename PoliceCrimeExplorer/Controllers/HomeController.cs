@@ -24,7 +24,7 @@ namespace PoliceCrimeExplorer.Controllers
             }
             catch (Exception ex)
             {
-
+                //Log error and save in database
             }
 
             return View(policeDataUpdateViewModel);
@@ -48,6 +48,7 @@ namespace PoliceCrimeExplorer.Controllers
             }
             catch (Exception ex)
             {
+                //Log error and save in database
                 return StatusCode(StatusCodes.Status500InternalServerError, ex);
             }
         }

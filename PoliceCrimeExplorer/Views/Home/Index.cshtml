@@ -7,6 +7,7 @@
 <link href="~/flatpickr/flatpickr.min.css" rel="stylesheet" />
 <link href="~/flatpickr/ie.min.css" rel="stylesheet" />
 <link href="~/flatpickr/plugins/confirmDate/confirmDate.min.css" rel="stylesheet" />
+<link href="~/flatpickr/plugins/monthSelect/style.min.css" rel="stylesheet" />
 <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
 
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
@@ -22,42 +23,69 @@
     }
 </style>
 
-
-
 <link href="https://cdn.datatables.net/v/dt/dt-2.0.2/datatables.min.css" rel="stylesheet">
 <script src="https://cdn.datatables.net/v/dt/dt-2.0.2/datatables.min.js"></script>
 
-
-<div class="text-center">
-    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
-        <input type="text" id="latitudeGpsCord" placeholder="Enter Latitude" />
-        <input type="text" id="longitudeGpsCord" placeholder="Enter longitude" />
-        <input class="flatpickr flatpickr-input" id="myDateInput" placeholder="Select a date" style="width: auto;">
+<div class="container">
+    <div class="row">
+        <div class="col">
+            <input type="text" id="latitudeGpsCord" placeholder="Enter Latitude" class="form-control" />
+        </div>
+        <div class="col">
+            <input type="text" id="longitudeGpsCord" placeholder="Enter longitude" class="form-control" />
+        </div>
+        <div class="col">
+            <input class="flatpickr flatpickr-input form-control" id="myDateInput" placeholder="Select a date" style="width: auto;">
+        </div>
     </div>
-
-    <button type="submit" id="updateTableButton" style="margin-top: 10px;">Search</button>
-
-    <table id="myTable">
-        <!-- Your table rows and cells -->
-    </table>
-
-
-    <table id="table_grouped_crimes" class="ui olive celled table">
-        <thead>
-            <tr>
-                <th style="width:50%;"><font>Crime Name</font></th>
-                <th style="width:50%;"><font>Crime Amount</font></th>
-            </tr>
-        </thead>
-        <tbody></tbody>
-    </table>
+    <div class="row">
+        <div class="col">
+            <button type="submit" id="updateTableButton" class="btn btn-primary mt-2">Search</button>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <table id="table_grouped_crimes" class="ui olive celled table">
+                <thead>
+                    <tr>
+                        <th style="width:50%;"><font>Crime Name</font></th>
+                        <th style="width:50%;"><font>Crime Amount</font></th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+        <div class="row">
+        <div class="col">
+            <table id="table_street_crimes" class="ui olive celled table">
+                <thead>
+                    <tr>
+                        <th style="width:25%;"><font>Category</font></th>
+                        <th style="width:25%;"><font>Location Type</font></th>
+                        <th style="width:25%;"><font>Location Street Name</font></th>
+                        <th style="width:25%;"><font>Outcome Status Category</font></th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
 
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
 <script>
+
     var groupedCrimesTable;
+    var streetCrimesTable;
 
     groupedCrimesTable = $("#table_grouped_crimes").DataTable({
+        "deferRender": true
+    });
+
+    streetCrimesTable = $("#table_street_crimes").DataTable({
         "deferRender": true
     });
 
@@ -67,11 +95,20 @@
             altInput: true, // Show a more user-friendly date format
             altFormat: 'F Y', // Display dates like "January 2023"
             monthSelectorType: 'dropdown', // Enables month selection
+            plugins: [
+                new monthSelectPlugin({
+                    shorthand: true, //defaults to false
+                    dateFormat: "m.y", //defaults to "F Y"
+                    altFormat: "F Y", //defaults to "F Y"
+                    theme: "dark" // defaults to "light"
+                })
+            ]
         });
 
 
         $('#updateTableButton').click(function () {
             groupedCrimesTable.clear();
+            streetCrimesTable.clear();
 
             var latitudeGpsCord = $('#latitudeGpsCord').val();
 
@@ -95,7 +132,7 @@
 
             $.ajax({
                 type: 'GET',
-                url: '@Url.Action("GetPoliceStreetCrimeDataInLocation", "Home")', // Replace with your actual action URL
+                url: '@Url.Action("GetPoliceStreetCrimeDataInLocation", "Home")',
                 data: {
                     latitudeGpsCord: latitudeGpsCord,
                     longitudeGpsCord: longitudeGpsCord,
@@ -103,9 +140,33 @@
                 },
                 dataType: 'json',
                 success: function (data) {
-                    // Update the table with the received data
-                    // Example: Assuming your table has an ID 'myTable'
-                    $('#myTable').html(data); // Replace with your logic
+                    for(var i=0;i<data.groupedCrimeCounts.length;i++){
+                        groupedCrimesTable.row.add([
+                        data.groupedCrimeCounts[i].crimeName,
+                         data.groupedCrimeCounts[i].count
+                        ]);
+                    }
+                   
+
+                    for(var i=0;i<data.streetCrimes.length;i++){
+                        var outcomeStatusCategory=null;
+                        if(data.streetCrimes[i].outcome_status !==null){
+                          outcomeStatusCategory=data.streetCrimes[i].outcome_status.category;
+                        }
+
+                        streetCrimesTable.row.add([
+                        data.streetCrimes[i].category,
+                        data.streetCrimes[i].location_type,
+                        data.streetCrimes[i].location.street.name,
+                        outcomeStatusCategory,
+                        null
+                        ]);
+                    }
+                   
+
+
+                    groupedCrimesTable.draw();
+                    streetCrimesTable.draw();
                 },
                 error: function (data) {
                     alert('Error fetching data from API.');
